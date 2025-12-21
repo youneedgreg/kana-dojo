@@ -11,7 +11,7 @@ import themeSets from '@/features/Preferences/data/themes';
 import { useClick } from '@/shared/hooks/useAudio';
 import clsx from 'clsx';
 
-// Animation keyframes - injected once when needed
+// Animation keyframes for interactive mode only
 const animationKeyframes = `
 @keyframes explode {
   0% {
@@ -34,15 +34,6 @@ const animationKeyframes = `
   }
   100% {
     opacity: 1;
-  }
-}
-
-@keyframes breathe {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(0.5);
   }
 }
 `;
@@ -77,9 +68,9 @@ const ANIMATION_CONFIG = {
   baseCount: 100, // ~100 characters animating at any given time (~13% of desktop grid)
   turnoverFrequency: 2500, // Every 2.5 seconds, cycle some characters
   turnoverCount: 20, // Remove and add 20 characters each cycle (gradual change)
-  pulseDuration: 4500, // 4.5s pulse for peaceful, breathing effect
-  minOpacity: 0.3, // Noticeable but not harsh (0.3-1.0)
-  transitionDuration: 1200 // 1.2s smooth fade in/out when starting/stopping
+  pulseDuration: 3000, // 3s pulse for peaceful, breathing effect
+  minOpacity: 0.4, // Noticeable but not harsh (0.4-1.0)
+  maxOpacity: 1.0 // Full brightness at peak
 };
 
 // Calculate how many characters to render based on viewport
@@ -300,42 +291,29 @@ InteractiveChar.displayName = 'InteractiveChar';
 
 interface StaticCharProps {
   style: CharacterStyle;
-  isAnimating?: boolean;
-  isFading?: boolean;
+  targetOpacity: number;
 }
 
-const StaticChar = memo(
-  ({ style, isAnimating = false, isFading = false }: StaticCharProps) => {
-    return (
-      <span
-        className={clsx(
-          'inline-flex items-center justify-center text-4xl',
-          style.fontClass
-        )}
-        aria-hidden='true'
-        style={{
-          color: style.color,
-          contentVisibility: 'auto',
-          containIntrinsicSize: '36px',
-          // Animation uses filter:brightness (not opacity), so no conflict with opacity fade
-          // Only animate when not fading
-          animation:
-            isAnimating && !isFading
-              ? `breathe ${ANIMATION_CONFIG.pulseDuration}ms ease-in-out infinite`
-              : undefined,
-          // When fading, smoothly transition opacity to fade out the pulsing
-          // Opacity and brightness are independent, so they don't conflict
-          ...(isFading && {
-            opacity: 1,
-            transition: `opacity ${ANIMATION_CONFIG.transitionDuration}ms ease-in-out`
-          })
-        }}
-      >
-        {style.char}
-      </span>
-    );
-  }
-);
+const StaticChar = memo(({ style, targetOpacity }: StaticCharProps) => {
+  return (
+    <span
+      className={clsx(
+        'inline-flex items-center justify-center text-4xl',
+        style.fontClass
+      )}
+      aria-hidden='true'
+      style={{
+        color: style.color,
+        contentVisibility: 'auto',
+        containIntrinsicSize: '36px',
+        opacity: targetOpacity,
+        transition: 'opacity 600ms ease-in-out'
+      }}
+    >
+      {style.char}
+    </span>
+  );
+});
 
 StaticChar.displayName = 'StaticChar';
 
@@ -356,10 +334,8 @@ const Decorations = ({
   const [visibleCount, setVisibleCount] = useState<number>(() =>
     calculateVisibleCount(interactive)
   );
-  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
-    new Set()
-  );
-  const [fadingIndices, setFadingIndices] = useState<Set<number>>(new Set());
+  // Map of character index to target opacity (1.0 for idle, varies for animating)
+  const [opacityMap, setOpacityMap] = useState<Map<number, number>>(new Map());
   const { playClick } = useClick();
 
   // Store latest playClick in ref to keep handleExplode stable
@@ -429,100 +405,99 @@ const Decorations = ({
     };
   }, []);
 
-  // Gradual continuous animation cycling - peaceful zen-like effect
+  // JavaScript-based smooth pulsing animation system
   useEffect(() => {
     // Only run in static mode
     if (interactive || styles.length === 0) return;
 
-    // Helper: Select random unique indices
-    const selectRandomIndices = (count: number, max: number): Set<number> => {
-      const indices = new Set<number>();
-      while (indices.size < Math.min(count, max)) {
-        indices.add(Math.floor(Math.random() * max));
+    // Track which characters are pulsing and their animation state
+    const pulsingChars = new Set<number>();
+    const animationState = new Map<
+      number,
+      { startTime: number; phase: number }
+    >();
+
+    // Select initial random characters to pulse
+    const initialCount = Math.min(ANIMATION_CONFIG.baseCount, styles.length);
+    while (pulsingChars.size < initialCount) {
+      const randomIndex = Math.floor(Math.random() * styles.length);
+      if (!pulsingChars.has(randomIndex)) {
+        pulsingChars.add(randomIndex);
+        animationState.set(randomIndex, {
+          startTime: Date.now() - Math.random() * ANIMATION_CONFIG.pulseDuration,
+          phase: Math.random() * Math.PI * 2
+        });
       }
-      return indices;
+    }
+
+    let rafId: number;
+    const animate = () => {
+      const now = Date.now();
+      const newOpacityMap = new Map<number, number>();
+
+      // Update opacity for pulsing characters
+      pulsingChars.forEach(index => {
+        const state = animationState.get(index);
+        if (state) {
+          const elapsed = now - state.startTime;
+          const progress = (elapsed % ANIMATION_CONFIG.pulseDuration) / ANIMATION_CONFIG.pulseDuration;
+          // Smooth sine wave for breathing effect
+          const opacity =
+            ANIMATION_CONFIG.minOpacity +
+            (ANIMATION_CONFIG.maxOpacity - ANIMATION_CONFIG.minOpacity) *
+              (Math.sin(progress * Math.PI * 2 - Math.PI / 2) * 0.5 + 0.5);
+          newOpacityMap.set(index, opacity);
+        }
+      });
+
+      // Set idle opacity for non-pulsing characters (or let them default)
+      setOpacityMap(newOpacityMap);
+
+      rafId = requestAnimationFrame(animate);
     };
 
-    // Helper: Remove N random items from a set and return them
-    const removeRandomFromSet = (
-      set: Set<number>,
-      count: number
-    ): { remaining: Set<number>; removed: Set<number> } => {
-      const array = Array.from(set);
-      const removedItems = new Set<number>();
-      while (removedItems.size < Math.min(count, array.length)) {
-        const randomIndex = Math.floor(Math.random() * array.length);
-        removedItems.add(array[randomIndex]);
-      }
-      const remaining = new Set(array.filter(item => !removedItems.has(item)));
-      return { remaining, removed: removedItems };
-    };
+    // Start animation loop
+    rafId = requestAnimationFrame(animate);
 
-    // Helper: Add N random indices to a set (avoiding existing ones)
-    const addRandomToSet = (
-      set: Set<number>,
-      count: number,
-      max: number,
-      exclude: Set<number>
-    ): Set<number> => {
-      const newSet = new Set(set);
-      const combined = new Set([...set, ...exclude]);
+    // Gradual turnover: periodically swap which characters are pulsing
+    const turnoverInterval = setInterval(() => {
+      // Remove some random characters from pulsing
+      const pulsingArray = Array.from(pulsingChars);
+      const toRemove = Math.min(
+        ANIMATION_CONFIG.turnoverCount,
+        pulsingArray.length
+      );
+
+      for (let i = 0; i < toRemove; i++) {
+        const randomIndex = Math.floor(Math.random() * pulsingArray.length);
+        const charIndex = pulsingArray[randomIndex];
+        pulsingChars.delete(charIndex);
+        animationState.delete(charIndex);
+        pulsingArray.splice(randomIndex, 1);
+      }
+
+      // Add new random characters to pulse
       let attempts = 0;
-      while (newSet.size < Math.min(set.size + count, max) && attempts < count * 10) {
-        const randomIndex = Math.floor(Math.random() * max);
-        if (!combined.has(randomIndex)) {
-          newSet.add(randomIndex);
-          combined.add(randomIndex);
+      while (
+        pulsingChars.size < ANIMATION_CONFIG.baseCount &&
+        attempts < ANIMATION_CONFIG.turnoverCount * 10
+      ) {
+        const randomIndex = Math.floor(Math.random() * styles.length);
+        if (!pulsingChars.has(randomIndex)) {
+          pulsingChars.add(randomIndex);
+          animationState.set(randomIndex, {
+            startTime: Date.now(),
+            phase: Math.random() * Math.PI * 2
+          });
         }
         attempts++;
       }
-      return newSet;
-    };
-
-    // Initialize with base count
-    const initialIndices = selectRandomIndices(
-      ANIMATION_CONFIG.baseCount,
-      styles.length
-    );
-    setAnimatingIndices(initialIndices);
-
-    // Gradual turnover: every 2.5s, move some to fading, add new ones
-    const turnoverInterval = setInterval(() => {
-      setAnimatingIndices(currentIndices => {
-        // Remove random subset and get what was removed
-        const { remaining, removed } = removeRandomFromSet(
-          currentIndices,
-          ANIMATION_CONFIG.turnoverCount
-        );
-
-        // Move removed items to fading set
-        setFadingIndices(currentFading => {
-          const newFading = new Set([...currentFading, ...removed]);
-          // Clean up old fading items after transition duration
-          setTimeout(() => {
-            setFadingIndices(f => {
-              const cleaned = new Set(f);
-              removed.forEach(idx => cleaned.delete(idx));
-              return cleaned;
-            });
-          }, ANIMATION_CONFIG.transitionDuration);
-          return newFading;
-        });
-
-        // Add new random subset (excluding fading ones)
-        return addRandomToSet(
-          remaining,
-          ANIMATION_CONFIG.turnoverCount,
-          styles.length,
-          removed
-        );
-      });
     }, ANIMATION_CONFIG.turnoverFrequency);
 
     return () => {
+      cancelAnimationFrame(rafId);
       clearInterval(turnoverInterval);
-      setAnimatingIndices(new Set());
-      setFadingIndices(new Set());
+      setOpacityMap(new Map());
     };
   }, [interactive, styles.length]);
 
@@ -537,17 +512,16 @@ const Decorations = ({
         <InteractiveChar key={index} style={style} onExplode={handleExplode} />
       ));
     } else {
-      // Static mode: gradual cycling animation - peaceful, zen-like breathing
+      // Static mode: JavaScript-controlled smooth pulsing
       return styles.map((style, index) => (
         <StaticChar
           key={index}
           style={style}
-          isAnimating={animatingIndices.has(index)}
-          isFading={fadingIndices.has(index)}
+          targetOpacity={opacityMap.get(index) ?? 1.0}
         />
       ));
     }
-  }, [styles, interactive, handleExplode, animatingIndices, fadingIndices]);
+  }, [styles, interactive, handleExplode, opacityMap]);
 
   if (styles.length === 0) return null;
 
