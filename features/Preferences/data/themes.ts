@@ -255,6 +255,12 @@ const baseThemeSets: BaseThemeGroup[] = [
     icon: Moon,
     themes: [
       {
+        id: 'school-uniform',
+        backgroundColor: 'oklch(92.0% 0.015 250.0 / 1)',
+        mainColor: 'oklch(40.0% 0.145 255.0 / 1)',
+        secondaryColor: 'oklch(60.0% 0.175 20.0 / 1)',
+      },
+      {
         id: 'yakuza-tattoo',
         backgroundColor: 'oklch(17.0% 0.045 255.0 / 1)',
         mainColor: 'oklch(62.0% 0.185 220.0 / 1)',
