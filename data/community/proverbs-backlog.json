@@ -396,7 +396,10 @@
     "romaji": "Ashita wa ashita no kaze ga fuku",
     "english": "Tomorrow's wind will blow tomorrow",
     "meaning": "Don't worry too much about the future",
-    "issued": true
+    "issued": true,
+    "completed": true,
+    "completedBy": "youneedgreg",
+    "completedPR": 1274
   },
   {
     "id": 40,
@@ -412,7 +415,10 @@
     "romaji": "Yudan taiteki",
     "english": "Carelessness is the greatest enemy",
     "meaning": "Don't let your guard down",
-    "issued": true
+    "issued": true,
+    "completed": true,
+    "completedBy": "youneedgreg",
+    "completedPR": 1282
   },
   {
     "id": 42,
@@ -420,7 +426,7 @@
     "romaji": "Kega no koumyou",
     "english": "Fame from a mistake",
     "meaning": "A lucky break that comes from an error",
-    "issued": false
+    "issued": true
   },
   {
     "id": 43,
@@ -428,7 +434,7 @@
     "romaji": "Nanakorobi yaoki",
     "english": "Fall seven times, get up eight",
     "meaning": "Never give up",
-    "issued": false
+    "issued": true
   },
   {
     "id": 44,
@@ -436,7 +442,7 @@
     "romaji": "Amadare ishi wo ugatsu",
     "english": "Dripping water pierces stone",
     "meaning": "Persistence can overcome great obstacles",
-    "issued": false
+    "issued": true
   },
   {
     "id": 45,
@@ -444,7 +450,10 @@
     "romaji": "Ishibashi wo tataite wataru",
     "english": "Tap a stone bridge before crossing",
     "meaning": "Be very cautious",
-    "issued": false
+    "issued": true,
+    "completed": true,
+    "completedBy": "mahatolalit",
+    "completedPR": 1324
   },
   {
     "id": 46,
