@@ -258,7 +258,17 @@ const baseThemeSets: BaseThemeGroup[] = [
         id: 'school-uniform',
         backgroundColor: 'oklch(92.0% 0.015 250.0 / 1)',
         mainColor: 'oklch(40.0% 0.145 255.0 / 1)',
-        secondaryColor: 'oklch(60.0% 0.175 20.0 / 1)',
+        secondaryColor: 'oklch(60.0% 0.175 20.0 / 1)'},{
+        id: 'sunrise-express',
+        backgroundColor: 'oklch(21.0% 0.048 50.0 / 1)',
+        mainColor: 'oklch(90.0% 0.145 70.0 / 1)',
+        secondaryColor: 'oklch(78.0% 0.175 40.0 / 1)'
+      },
+      {
+        id: 'holographic-idol',
+        backgroundColor: 'oklch(14.0% 0.065 300.0 / 1)',
+        mainColor: 'oklch(82.0% 0.185 200.0 / 1)',
+        secondaryColor: 'oklch(78.0% 0.210 330.0 / 1)'
       },
       {
         id: 'yakuza-tattoo',
@@ -320,6 +330,12 @@ const baseThemeSets: BaseThemeGroup[] = [
         backgroundColor: 'oklch(15.0% 0.045 310.0 / 1)',
         mainColor: 'oklch(88.0% 0.065 285.0 / 1)',
         secondaryColor: 'oklch(70.0% 0.145 340.0 / 1)',
+      },
+      {
+        id: 'street-lantern',
+        backgroundColor: 'oklch(19.0% 0.038 40.0 / 1)',
+        mainColor: 'oklch(85.0% 0.135 55.0 / 1)',
+        secondaryColor: 'oklch(68.0% 0.165 30.0 / 1)'
       },
       {
         id: 'dragon-scale',
@@ -1224,6 +1240,12 @@ const baseThemeSets: BaseThemeGroup[] = [
         backgroundColor: 'oklch(17.0% 0.072 305.0 / 1)',
         mainColor: 'oklch(75.0% 0.175 195.0 / 1)',
         secondaryColor: 'oklch(80.0% 0.195 330.0 / 1)',
+      },
+      {
+        id: 'wind-god',
+        backgroundColor: 'oklch(19.0% 0.045 175.0 / 1)',
+        mainColor: 'oklch(82.0% 0.155 180.0 / 1)',
+        secondaryColor: 'oklch(72.0% 0.135 165.0 / 1)'
       },
     ],
   },
