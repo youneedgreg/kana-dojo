@@ -895,7 +895,10 @@
     "backgroundColor": "oklch(19.0% 0.045 175.0 / 1)",
     "mainColor": "oklch(82.0% 0.155 180.0 / 1)",
     "secondaryColor": "oklch(72.0% 0.135 165.0 / 1)",
-    "issued": true
+    "issued": true,
+    "completed": true,
+    "completedBy": "kostas-arte",
+    "completedPR": 1286
   },
   {
     "id": "shaved-ice",
@@ -925,7 +928,7 @@
     "backgroundColor": "oklch(92.0% 0.015 250.0 / 1)",
     "mainColor": "oklch(40.0% 0.145 255.0 / 1)",
     "secondaryColor": "oklch(60.0% 0.175 20.0 / 1)",
-    "issued": false
+    "issued": true
   },
   {
     "id": "street-lantern",
@@ -934,7 +937,10 @@
     "backgroundColor": "oklch(19.0% 0.038 40.0 / 1)",
     "mainColor": "oklch(85.0% 0.135 55.0 / 1)",
     "secondaryColor": "oklch(68.0% 0.165 30.0 / 1)",
-    "issued": false
+    "issued": true,
+    "completed": true,
+    "completedBy": "JeraldPascual",
+    "completedPR": 1291
   },
   {
     "id": "garden-bridge",

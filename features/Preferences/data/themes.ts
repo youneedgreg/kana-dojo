@@ -316,6 +316,12 @@ const baseThemeSets: BaseThemeGroup[] = [
         secondaryColor: 'oklch(70.0% 0.145 340.0 / 1)',
       },
       {
+        id: 'street-lantern',
+        backgroundColor: 'oklch(19.0% 0.038 40.0 / 1)',
+        mainColor: 'oklch(85.0% 0.135 55.0 / 1)',
+        secondaryColor: 'oklch(68.0% 0.165 30.0 / 1)'
+      },
+      {
         id: 'dragon-scale',
         backgroundColor: 'oklch(19.0% 0.055 165.0 / 1)',
         mainColor: 'oklch(68.0% 0.175 160.0 / 1)',
@@ -1218,6 +1224,12 @@ const baseThemeSets: BaseThemeGroup[] = [
         backgroundColor: 'oklch(17.0% 0.072 305.0 / 1)',
         mainColor: 'oklch(75.0% 0.175 195.0 / 1)',
         secondaryColor: 'oklch(80.0% 0.195 330.0 / 1)',
+      },
+      {
+        id: 'wind-god',
+        backgroundColor: 'oklch(19.0% 0.045 175.0 / 1)',
+        mainColor: 'oklch(82.0% 0.155 180.0 / 1)',
+        secondaryColor: 'oklch(72.0% 0.135 165.0 / 1)'
       },
     ],
   },
